@@ -1,155 +1,89 @@
 # What to watch on https://www.intern-list.com/ and what counts as worth an email.
 #
 # lists: the site's short names (the ?k= value in its URLs). US lists only.
-#   cs   = Cybersecurity            swe = Software Engineering
-#   eng  = Engineering and Development   aiml = Machine Learning and AI
-#   da   = Data Analysis            pm  = Product Management
-#   (run `python -m jobscanner --show-lists` to see them all)
+#   eng  = Engineering and Development   swe = Software Engineering
+#   cs   = Cybersecurity            aiml = Machine Learning and AI
+#   (run `python -m jobscanner --show-lists` to see them all; there's no separate
+#   electrical or hardware list, so EE roles come from eng, plus swe's embedded/firmware ones)
 # Jobs come from jobright.ai, which powers the site's job tables.
 # Optional per list: title_include (keep only titles containing any of these)
 # and title_exclude (drop titles containing any of these). Case-insensitive.
+#
+# Words match anywhere in the title, even inside other words: "ic" would match
+# "electrical" and "public", "rf" would match "performance". So short terms are written
+# as phrases ("ic design") or with a space on one side ("rf ", " rf"), which needs quotes.
+# An exclude always wins over an include.
 
 lists:
-  - key: cs
-  - key: swe
-    title_include: [network engineer, networking, network security, network software, network infrastructure, noc]
   - key: eng
-    title_include: [network engineer, networking, network security, network infrastructure, noc]
-    title_exclude: [electrical, transmission, distribution, power, utility]
+    # The EE words, shared by every list below (&ee_words names the list; *ee_words reuses it).
+    title_include: &ee_words [
+      # electrical and electronics in general
+      electric, electronic, hardware, " hw", "hw/", computer engineer,
+      # analog, mixed-signal, power
+      analog, mixed-signal, signal, power, pmic, battery, motor control,
+      # chips
+      circuit, silicon, semiconductor, ic design, ic layout, ic test, ic validation, ic verification,
+      analog ic, power ic, rfic, asic, vlsi, fpga, "rtl ", " rtl", soc design, soc engineer, physical design,
+      digital design, soft ip, pmu, dram, hbm, gpu architecture, computer architecture,
+      # RF and signals
+      "rf ", " rf", "rf/", microwave, antenna, radar, dsp,
+      # board level
+      pcb, layout, embedded, firmware,
+      # test, validation, product and applications engineering
+      verification, validation, characterization, design evaluation, test, failure analysis,
+      applications engineer, application engineer, product engineer,
+      # adjacent hardware
+      photonic, optical, sensor, microsystems, microfabrication, avionics, mechatronics,
+    ]
+    title_exclude: &not_ee [
+      # software, data and business roles
+      frontend, front end, front-end, backend, back end, back-end, full stack, full-stack, fullstack,
+      data scientist, data science, data analyst, data engineer, systems administrator,
+      marketing, sales, finance, financial, accounting, cybersecurity, cyber security,
+      # software QA and test software (hardware test stays: "Hardware/Software Testing" passes)
+      software test intern, software testing engineer, software qa, qa, engineer in test, test software,
+      # not intern-level ("senior" alone would drop "Senior Technical Intern - Firmware")
+      senior engineer, staff engineer, manager, research scientist,
+      # "power", "test" and "sensor" in non-EE titles
+      power bi, powerbi, powerapps, power apps, power platform, power automate,
+      construction materials, materials testing, civil engineer, sensory,
+      flight test, propulsion test, gas turbine,
+      # one-offs seen in real postings
+      model validation, middleware, ai product, ai application, electronic data,
+    ]
+  - key: swe
+    title_include: *ee_words
+    title_exclude: *not_ee
   # A community GitHub list of brand-name internships (any key name; `repo` makes it a
   # GitHub list). No pay or company size there, so these qualify by location or priority company.
   # Bump the repo name each season, e.g. Summer2028-Internships.
   - key: github
     repo: SimplifyJobs/Summer2027-Internships
-    title_include: [security, cyber, network, infosec, threat, vulnerability, identity, soc analyst, incident response, penetration, red team]
-    title_exclude: [physical security, social security]
+    title_include: *ee_words
+    title_exclude: *not_ee
 
 # Check top companies' own career sites too: jobs appear there before aggregators copy
 # them. Sites only say which day a job went up, so the first check of a new site just
 # records what's there; after that you get each new job. Every site uses these filters.
 company_sites:
-  title_require: [intern, co-op, summer analyst]   # banks call interns "summer analysts"
-  title_include: [security, cyber, network, infosec, threat, vulnerability, identity, soc analyst, incident response, penetration, red team, firewall]
-  title_exclude: [physical security, social security, supply chain, business network]
+  title_require: [intern, co-op]
+  title_include: *ee_words
+  title_exclude: *not_ee
   sites:
-    # Security and networking
-    - {company: Palo Alto Networks, workday: "https://paloaltonetworks.wd5.myworkdayjobs.com/panwexternalcareers"}
-    - {company: CrowdStrike, workday: "https://crowdstrike.wd5.myworkdayjobs.com/crowdstrikecareers"}
-    - {company: Fortinet, oracle: "https://edel.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2001"}
-    - {company: Zscaler, greenhouse: zscaler}
-    - {company: Cisco, workday: "https://cisco.wd5.myworkdayjobs.com/Cisco_Careers"}
-    - {company: Okta, greenhouse: okta}
-    - {company: Cloudflare, greenhouse: cloudflare}
-    - {company: SentinelOne, greenhouse: sentinellabs}
-    - {company: Wiz, greenhouse: wizinc}
-    - {company: Tenable, greenhouse: tenableinc}
-    - {company: Proofpoint, workday: "https://proofpoint.wd5.myworkdayjobs.com/ProofpointCareers"}
-    - {company: Arctic Wolf, workday: "https://arcticwolf.wd1.myworkdayjobs.com/External"}
-    - {company: Abnormal Security, greenhouse: abnormalsecurity}
-    - {company: 1Password, ashby: 1password}
-    - {company: Snyk, ashby: snyk}
-    - {company: Vanta, ashby: vanta}
-    - {company: Chainguard, greenhouse: chainguard}
-    - {company: Tailscale, greenhouse: tailscale}
-    - {company: Verkada, greenhouse: verkada}
-    - {company: Hewlett Packard Enterprise, workday: "https://hpe.wd5.myworkdayjobs.com/Jobsathpe"}
-    - {company: Broadcom, workday: "https://broadcom.wd1.myworkdayjobs.com/External_Career"}
-    - {company: Trend Micro, workday: "https://trendmicro.wd3.myworkdayjobs.com/External"}
-    - {company: SailPoint, workday: "https://sailpoint.wd1.myworkdayjobs.com/SailPoint"}
-    - {company: Trellix, workday: "https://trellix.wd1.myworkdayjobs.com/EnterpriseCareers"}
-    - {company: Tanium, greenhouse: tanium}
-    - {company: Fastly, greenhouse: fastly}
-    - {company: Dragos, greenhouse: dragos}
-    - {company: Recorded Future, greenhouse: recordedfuture}
-    - {company: Rubrik, greenhouse: rubrik}
-    # Telecom (network engineering)
-    - {company: T-Mobile, workday: "https://tmobile.wd1.myworkdayjobs.com/External"}
-    - {company: Verizon, workday: "https://verizon.wd12.myworkdayjobs.com/verizon-careers"}
-    - {company: Comcast, workday: "https://comcast.wd115.myworkdayjobs.com/Comcast_Careers"}
-    # Big tech
     - {company: Apple, careers: apple}
     - {company: NVIDIA, workday: "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite"}
-    - {company: Google, careers: google}
-    - {company: Amazon, careers: amazon}
-    - {company: Salesforce, workday: "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site"}
-    - {company: Adobe, workday: "https://adobe.wd5.myworkdayjobs.com/external_experienced"}
     - {company: Intel, workday: "https://intel.wd1.myworkdayjobs.com/External"}
     - {company: Micron, workday: "https://micron.wd1.myworkdayjobs.com/External"}
-    - {company: Workday, workday: "https://workday.wd5.myworkdayjobs.com/Workday_Early_Career"}
-    - {company: Snap, workday: "https://snapchat.wd1.myworkdayjobs.com/snap"}
-    - {company: PayPal, workday: "https://paypal.wd1.myworkdayjobs.com/jobs"}
-    - {company: Zoom, workday: "https://zoom.wd5.myworkdayjobs.com/Zoom"}
-    - {company: Autodesk, workday: "https://autodesk.wd1.myworkdayjobs.com/Ext"}
-    - {company: Block, greenhouse: block}
-    - {company: Twilio, greenhouse: twilio}
-    - {company: Dropbox, greenhouse: dropbox}
-    # AI, aerospace and hard tech
-    - {company: SpaceX, greenhouse: spacex}
-    - {company: Anduril Industries, greenhouse: andurilindustries}
-    - {company: Palantir Technologies, lever: palantir}
-    - {company: OpenAI, ashby: openai}
-    - {company: Anthropic, greenhouse: anthropic}
-    - {company: xAI, greenhouse: xai}
-    - {company: Scale AI, greenhouse: scaleai}
-    - {company: Databricks, greenhouse: databricks}
-    - {company: Snowflake, ashby: snowflake}
-    - {company: Shield AI, ashby: shieldai}
-    - {company: Saronic, ashby: saronic}
-    - {company: Waymo, greenhouse: waymo}
-    - {company: Zoox, lever: zoox}
-    - {company: Nuro, greenhouse: nuro}
-    - {company: Neuralink, greenhouse: neuralink}
-    # Defense and government
+    - {company: Broadcom, workday: "https://broadcom.wd1.myworkdayjobs.com/External_Career"}
     - {company: Northrop Grumman, workday: "https://ngc.wd1.myworkdayjobs.com/Northrop_Grumman_External_Site"}
-    - {company: RTX, workday: "https://globalhr.wd5.myworkdayjobs.com/REC_RTX_Ext_Gateway"}
-    - {company: Boeing, workday: "https://boeing.wd1.myworkdayjobs.com/EXTERNAL_CAREERS"}
-    - {company: Booz Allen Hamilton, workday: "https://bah.wd1.myworkdayjobs.com/BAH_Jobs"}
-    - {company: Leidos, workday: "https://leidos.wd5.myworkdayjobs.com/External"}
-    - {company: General Dynamics Information Technology, workday: "https://gdit.wd5.myworkdayjobs.com/External_Career_Site"}
-    - {company: CACI, workday: "https://caci.wd1.myworkdayjobs.com/External"}
-    - {company: Aerospace Corporation, workday: "https://aero.wd5.myworkdayjobs.com/External"}
-    - {company: Parsons, workday: "https://parsons.wd5.myworkdayjobs.com/Search"}
-    - {company: Blue Origin, workday: "https://blueorigin.wd5.myworkdayjobs.com/BlueOrigin"}
+    - {company: RTX, workday: "https://globalhr.wd5.myworkdayjobs.com/REC_RTX_Ext_Gateway"}  # Raytheon, Collins, Pratt & Whitney
     - {company: Draper, workday: "https://draper.wd5.myworkdayjobs.com/Draper_Careers"}
-    # Banks and consulting (big cyber programs)
-    - {company: Citi, workday: "https://citi.wd5.myworkdayjobs.com/2"}
-    - {company: Wells Fargo, workday: "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs"}
-    - {company: Morgan Stanley, workday: "https://ms.wd5.myworkdayjobs.com/External"}
-    - {company: Fidelity Investments, workday: "https://fmr.wd1.myworkdayjobs.com/targeted"}
-    - {company: SoFi, greenhouse: sofi}
-    - {company: PwC, workday: "https://pwc.wd3.myworkdayjobs.com/US_Entry_Level_Careers"}
-    - {company: Accenture, workday: "https://accenture.wd103.myworkdayjobs.com/AccentureCareers"}
-    # Software, fintech and trading
-    - {company: Stripe, greenhouse: stripe}
-    - {company: Datadog, greenhouse: datadog}
-    - {company: MongoDB, greenhouse: mongodb}
-    - {company: Elastic, greenhouse: elastic}
-    - {company: GitLab, greenhouse: gitlab}
-    - {company: Samsara, greenhouse: samsara}
-    - {company: Coinbase, greenhouse: coinbase}
-    - {company: Robinhood, greenhouse: robinhood}
-    - {company: Ramp, ashby: ramp}
-    - {company: Plaid, ashby: plaid}
-    - {company: Brex, greenhouse: brex}
-    - {company: Capital One, workday: "https://capitalone.wd12.myworkdayjobs.com/Capital_One"}
-    - {company: Visa, workday: "https://visa.wd5.myworkdayjobs.com/Visa"}
-    - {company: Mastercard, workday: "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers"}
-    - {company: Jane Street, greenhouse: janestreet}
-    - {company: Hudson River Trading, greenhouse: wehrtyou}
-    - {company: Airbnb, greenhouse: airbnb}
-    - {company: DoorDash, greenhouse: doordashusa}
-    - {company: Lyft, greenhouse: lyft}
-    - {company: Instacart, greenhouse: instacart}
-    - {company: Pinterest, greenhouse: pinterest}
-    - {company: Reddit, greenhouse: reddit}
-    - {company: Discord, greenhouse: discord}
-    - {company: Roblox, greenhouse: roblox}
-    - {company: Figma, greenhouse: figma}
     # Not checkable directly (their job sites block automated requests, only load in a
-    # browser, or use a system without a public feed): Tesla, Meta, Microsoft, Netflix, Uber,
-    # Lockheed Martin, L3Harris, AMD, Qualcomm, Dell, ServiceNow, Intuit, JPMorgan Chase,
-    # Goldman Sachs, the national labs and others. They're top companies below, so their jobs
-    # on intern-list.com and the GitHub list still get the ★.
+    # browser, or use a system without a public feed): Tesla, Lockheed Martin, AMD, Qualcomm
+    # and others. They're top companies below, so their jobs on intern-list.com and the
+    # GitHub list still get the ★.
+
 # Skip jobs you can't take. These apply before the criteria below.
 eligibility:
   graduation: 2028-05     # your graduation (YYYY-MM): skips roles for other grad classes
@@ -181,125 +115,134 @@ quiet_hours: [0, 4]
 match: any
 
 criteria:
-  min_hourly_pay: 35            # top of posted range; yearly pay / 2080
+  min_hourly_pay: 28            # top of posted range; yearly pay / 2080
   # State codes (CT), metro areas (Bay Area, Los Angeles, San Diego, Seattle, NYC, Boston,
   # Chicago, Austin, DC — suburbs included, see METROS in jobscanner/filters.py) or cities ("Denver, CO").
-  locations: [Bay Area, Los Angeles, San Diego, Seattle, NYC, Boston, Chicago, Austin, DC, CT]
+  # Anywhere in the US: every state plus DC. The favorite places come first only so the email
+  # names them ("In Boston" rather than "In MA").
+  locations: [
+    CT, Boston, NYC, Bay Area, Austin, Seattle, San Diego,
+    AL, AK, AZ, AR, CA, CO, DE, DC, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS,
+    MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY,
+  ]
   # Top-company and large-company matches must also be in `locations` (or remote / no city
   # given). Matches on pay alone can be anywhere.
   company_needs_location: true
   large_company_min_size: 10000 # employees, from the site's size buckets
   priority_companies:           # ranked first; also count as "large company". Every company
-                                # under company_sites is one too, so only others go here.
-    - Meta
-    - Microsoft
-    - Tesla
-    - Netflix
-    - Uber
-    - Lockheed Martin
-    - L3Harris
-    - Raytheon
-    - General Dynamics
-    - AMD
-    - Qualcomm
+                                # under company_sites is one too. A name matches with corporate
+                                # words after it ("Intel Corporation"), but other words need
+                                # their own entry ("NXP Semiconductors").
+    # Analog, mixed-signal and power
     - Texas Instruments
-    - IBM
-    - Akamai
-    - Arista Networks
-    - Rapid7
-    - Citadel
-    - Two Sigma
-    - Bloomberg
-    - MITRE
-    - Johns Hopkins Applied Physics Laboratory
+    - Analog Devices
+    - Monolithic Power Systems
+    - Infineon
+    - Allegro MicroSystems
+    - Microchip
+    - onsemi
+    - ON Semiconductor
+    - NXP
+    - NXP Semiconductors
+    - Renesas
+    - Renesas Electronics
+    - Skyworks
+    - Qorvo
+    # Chips and computing
+    - Qualcomm
+    - NVIDIA
+    - Apple
+    - AMD
+    - Advanced Micro Devices
+    - Intel
+    - Broadcom
+    - Marvell
+    - Marvell Semiconductor
+    - Micron
+    - Tesla
+    # Defense and aerospace
+    - Raytheon
+    - RTX
+    - Lockheed Martin
+    - Northrop Grumman
+    - General Dynamics
+    - General Dynamics Mission Systems
+    - General Dynamics Electric Boat
+    - Electric Boat
+    - Pratt & Whitney
+    - Collins Aerospace
+    - Sikorsky
+    - Sikorsky Aircraft
     - MIT Lincoln Laboratory
-    # Security vendors
-    - CyberArk
-    - Check Point
-    - Check Point Software
-    - Qualys
-    - Darktrace
-    - Illumio
-    - Cohesity
-    - Sophos
-    - Mandiant
-    # Tech
-    - Dell
-    - ServiceNow
-    - Intuit
-    - Oracle
-    - Atlassian
-    # Finance
-    - JPMorgan Chase
-    - JPMorganChase
-    - Goldman Sachs
-    - American Express
-    - Bank of America
-    - BlackRock
-    - Charles Schwab
-    # Defense, labs and consulting
-    - SAIC
-    - Peraton
-    - ManTech
-    - BAE Systems
-    - General Atomics
-    - General Atomics Aeronautical Systems
-    - Lawrence Livermore National Laboratory
-    - Sandia National Laboratories
-    - Deloitte
-    - EY
-    - Ernst & Young
-    - KPMG
-    - AT&T
+    - Draper
+    - Charles Stark Draper Laboratory
+    # Chip equipment and test
+    - Teradyne
+    - KLA
+    - Applied Materials
+    - Lam Research
 
 # Skills to point out in each email: ✓ ones you have, ✗ ones you don't. Only a highlight;
 # it never changes which jobs are sent. Each entry is a name, or [name, other spellings...].
-# Short names (C, Go, AWS) only match with that exact capitalization.
+# Names of 4 letters or fewer (C, RTL, FPGA, Java) only match with that exact capitalization,
+# and a name must stand alone: Verilog doesn't match inside SystemVerilog, Java not inside JavaScript.
 skills:
   have:
-    - Python
-    - C++
+    # Digital and computer architecture
+    - Verilog
+    - [SystemVerilog, System Verilog]
+    - [RISC-V, RISCV, RISC V]
+    - Computer architecture
+    - [Digital design, digital logic, digital logic design, digital circuit design]
+    - RTL
+    - FPGA
+    - Vivado
+    - [Icarus Verilog, iverilog]
+    - Verilator
+    - [Testbenches, testbench]
+    - [Basys 3, Basys3]
+    - [Artix-7, Artix 7, Artix]
+    # Analog and power
+    - [Analog circuits, analog circuit, analog circuit design]
+    - [Power supplies, power supply, DC-DC, DC/DC]
+    - Power electronics
+    - Derating
+    - LTspice
+    - [SPICE, HSPICE, PSpice]
+    - MATLAB
+    # Boards and embedded
+    - [Altium Designer, Altium]
+    - [PCB design, PCB layout, PCB]
+    - [Embedded firmware, firmware]
+    - ESP32
+    - ESP-IDF
+    - [Wiring harness, wiring harnesses, wire harness, cable harness]
+    - [Assembly language, assembly programming, "6502"]
+    # Lab
+    - [Oscilloscope, oscilloscopes]
+    - [Logic analyzer, logic analyzers]
+    - [Vector network analyzer, vector network analyzers, VNA]
+    - [Bench testing, bench test, lab equipment, test equipment]
+    - [Hardware characterization, characterization]
+    - Validation
+    # Languages and tools
     - C
-    - [JavaScript, JS]
-    - TypeScript
-    - React
-    - FastAPI
-    - HTML
-    - [AWS, Amazon Web Services]
-    - [GCP, Google Cloud]
-    - Git
-    - Linux
-    - Docker
-    - Ansible
-    - Wireshark
-    - [Kali, Kali Linux]
-    - VMware
-    - Nessus
-    - ACAS
-    - STIG
-    - [REST, REST API, RESTful]
-    - [TCP/IP, TCP, UDP]
-    - DNS
-    - [WireGuard, Tailscale, VPN]
-    - [Firewalls, firewall, Palo Alto, Panorama, NGFW]
-    - [Incident response, IR]
-    - [Log analysis, log analytics]
-    - [Vulnerability management, vulnerability scanning, vulnerability assessment]
-    - SIEM
-    - [MITRE ATT&CK, ATT&CK, MITRE]
-    - [RMF, Risk Management Framework, ATO]
-    - [Risk assessment, risk assessments]
-    - [Phishing, Proofpoint]
-    - [EDR, CrowdStrike, endpoint protection]
-    - [Security+, Security Plus, Sec+]
-    - [AWS Certified, Cloud Practitioner]
-    - [Packet analysis, packet capture, pcap]
-  lack:
+    - C++
+    - Python
+    - C#
     - Java
-    - [Go, Golang]
-    - Rust
-    - [C#, .NET]
-    - Kotlin
-    - Ruby
-    - PHP
-    - Scala
+    - [JavaScript, JS]
+    - SolidWorks
+    - [GitHub, Git]
+    - Jira
+  # Tools EE postings often ask for that aren't in your list above. A guess: move any you know to `have`.
+  lack:
+    - [Cadence, Virtuoso, Spectre]
+    - [Synopsys, VCS, Design Compiler, PrimeTime]
+    - UVM
+    - VHDL
+    - [Tcl, TCL]
+    - Perl
+    - LabVIEW
+    - Simulink
+    - JMP
