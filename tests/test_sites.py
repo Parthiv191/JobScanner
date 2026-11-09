@@ -32,6 +32,43 @@ def test_workday_location():
     assert _workday_location("USA - Sunnyvale, CA") == "Sunnyvale, CA"
 
 
+@pytest.mark.parametrize("raw,expected", [
+    # RTX: COUNTRY-STATE-CITY-SITE ~ street ~ building
+    ("US-AZ-TUCSON-M10 ~ 3360 E Hemisphere Loop ~ BLDG M10", "Tucson, AZ"),
+    ("US-CT-EAST HARTFORD-ETC ~ 400 Main St ~ BLDG ETC", "East Hartford, CT"),
+    ("US-CA-SANTA FE SPRINGS-11120 ~ 11120 South Norwalk Blvd ~ NORWALK", "Santa Fe Springs, CA"),
+    ("US-MA-TEWKSBURY-TB2 ~ 50 Apple Hill Dr ~ SUDBURY BLDG, Tewksbury Tb2 200 Sudbury", "Tewksbury, MA"),
+    ("US-GA-REMOTE", "Remote, GA"),
+    ("CA-QC-LONGUEUIL-J01 ~ 1000 Blvd Marie-Victorin ~ J01 BLDG", "Longueuil, QC, Canada"),
+    ("AE-AZ-MILITARY-CUST ~ Abu Dhabi Capital ~ ABU DHABI CAPITAL, Military Locations (External Site)",
+     "Military, AZ, United Arab Emirates"),
+    # Northrop Grumman: United States-State-City
+    ("United States-Colorado-Colorado Springs", "Colorado Springs, CO"),
+    ("United States-Virginia-Dulles; United States-Maryland-Baltimore", "Dulles, VA; Baltimore, MD"),
+    # Intel: US, full state name, city
+    ("US, Oregon, Hillsboro; US, Arizona, Phoenix", "Hillsboro, OR; Phoenix, AZ"),
+    # Micron: a site name after the state
+    ("Boise, ID - ID1", "Boise, ID"),
+    ("Manassas, VA -  Fab 6", "Manassas, VA"),
+    # Already readable: left alone
+    ("Lowell, MA; Cambridge, MA", "Lowell, MA; Cambridge, MA"),
+    ("China, Shanghai", "China, Shanghai"),
+    ("Fab 10A, Singapore", "Fab 10A, Singapore"),
+])
+def test_workday_location_company_formats(raw, expected):
+    assert _workday_location(raw) == expected
+
+
+def test_workday_locations_feed_location_rules():
+    from jobscanner.filters import location_match, outside_us
+    assert location_match(_workday_location("US-MA-ANDOVER-AR1 ~ 358 Lowell St ~ AR1 DUKES BLDG"), ["Boston"]) == "Boston"
+    assert location_match(_workday_location("Boise, ID - ID1"), ["ID"]) == "ID"
+    assert outside_us(_workday_location("CA-QC-LONGUEUIL-J01 ~ 1000 Blvd Marie-Victorin ~ J01 BLDG"))
+    assert not outside_us(_workday_location("US-CA-SANTA FE SPRINGS-11120 ~ 11120 South Norwalk Blvd ~ NORWALK"))
+    abu_dhabi = _workday_location("AE-AZ-MILITARY-CUST ~ Abu Dhabi Capital ~ ABU DHABI CAPITAL")
+    assert outside_us(abu_dhabi) and location_match(abu_dhabi, ["AZ"]) is None   # AZ here is Abu Dhabi, not Arizona
+
+
 class Resp:
     def __init__(self, data, status=200):
         self._data, self.status_code, self.ok = data, status, status < 400

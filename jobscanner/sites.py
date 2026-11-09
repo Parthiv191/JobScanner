@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 
 import requests
 
+from .filters import STATES
 from .skills import plain_text
 from .source import TIMEOUT, Posting, SourceError
 
@@ -111,15 +112,48 @@ def fetch_workday(session: requests.Session, url: str, company: str, list_key: s
     return postings
 
 
+_STATE_NAMES = {name.lower(): code for code, name in STATES.items()}
+# RTX: COUNTRY-STATE-CITY-SITE ~ street ~ building, e.g. 'US-AZ-TUCSON-M10 ~ 3360 E Hemisphere Loop ~ BLDG M10',
+# 'US-GA-REMOTE', 'CA-QC-LONGUEUIL-J01 ~ ...' (Quebec, Canada), 'AE-AZ-...' (Abu Dhabi, not Arizona).
+_RTX_PLACE = re.compile(r"([A-Z]{2})-([A-Z]{2})-([A-Z][A-Z .']*?)(?:-[^~]*)?(?:\s*~.*)?")
+# Other countries' codes, named so outside-US jobs are recognized; any other code is left as written.
+_COUNTRY_CODES = {
+    "CA": "Canada", "GB": "United Kingdom", "IE": "Ireland", "PL": "Poland", "DE": "Germany", "FR": "France",
+    "IN": "India", "AE": "United Arab Emirates", "SA": "Saudi Arabia", "QA": "Qatar", "AU": "Australia",
+    "JP": "Japan", "SG": "Singapore", "MX": "Mexico", "CN": "China", "NL": "Netherlands", "ES": "Spain",
+    "IT": "Italy", "KR": "Korea", "TR": "Turkey", "IL": "Israel", "CZ": "Czech Republic", "RO": "Romania",
+}
+
+
+def _state_code(name: str) -> str | None:
+    """'CA' or 'California' -> 'CA'."""
+    name = name.strip()
+    return name.upper() if len(name) == 2 and name.upper() in STATES else _STATE_NAMES.get(name.lower())
+
+
 def _workday_location(text: str) -> str:
-    """'US, CA, Santa Clara' -> 'Santa Clara, CA'; 'USA - Sunnyvale, CA' -> 'Sunnyvale, CA'."""
+    """Each company's Workday style -> 'City, ST', which the location rules understand.
+
+    'US, CA, Santa Clara' / 'US, Oregon, Hillsboro' (Intel) -> 'Santa Clara, CA' / 'Hillsboro, OR';
+    'USA - Sunnyvale, CA' -> 'Sunnyvale, CA'; 'United States-Colorado-Colorado Springs' (Northrop
+    Grumman) -> 'Colorado Springs, CO'; 'US-AZ-TUCSON-M10 ~ street ~ building' (RTX) -> 'Tucson, AZ';
+    'Boise, ID - ID1' (Micron) -> 'Boise, ID'.
+    """
     out = []
     for part in text.split(";"):
         part = part.strip()
-        m = re.fullmatch(r"US,\s*([A-Z]{2}),\s*(.+)", part)
-        if m:
-            part = f"{m.group(2)}, {m.group(1)}"
+        if m := re.fullmatch(r"(?:US,\s*|United States-)([A-Za-z ]+?)(?:,\s*|-)(.+)", part):
+            if st := _state_code(m.group(1)):
+                part = f"{m.group(2)}, {st}"
+        elif m := _RTX_PLACE.fullmatch(part):
+            country, region, city = m.groups()
+            if country == "US" and region in STATES:
+                part = f"{city.title()}, {region}"
+            elif country in _COUNTRY_CODES:
+                part = f"{city.title()}, {region}, {_COUNTRY_CODES[country]}"
         part = re.sub(r"^USA?\s*-\s*", "", part)
+        if (m := re.fullmatch(r"(.+?,\s*([A-Z]{2}))\s+-\s+.+", part)) and m.group(2) in STATES:
+            part = m.group(1)
         if part:
             out.append(part)
     return "; ".join(out)

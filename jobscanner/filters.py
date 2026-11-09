@@ -119,7 +119,7 @@ FOREIGN = re.compile(r"\b(" + "|".join([
     "canada", "united kingdom", "uk", "england", "scotland", "ireland", "india", "germany", "france", "israel",
     "romania", "poland", "spain", "italy", "netherlands", "belgium", "switzerland", "austria", "sweden",
     "denmark", "norway", "finland", "portugal", "czech republic", "czechia", "hungary", "greece", "türkiye",
-    "turkey", "japan", "china", "hong kong", "taiwan", "korea", "singapore", "malaysia", "vietnam",
+    "turkey", "japan", "china", "prc", "hong kong", "taiwan", "korea", "singapore", "malaysia", "vietnam",
     "philippines", "indonesia", "thailand", "australia", "new zealand", "mexico", "brazil", "argentina",
     "colombia", "chile", "costa rica", "united arab emirates", "uae", "saudi arabia", "qatar", "egypt",
     "south africa", "luxembourg", "lithuania", "ukraine", "serbia", "bulgaria", "croatia", "estonia",

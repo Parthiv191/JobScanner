@@ -202,6 +202,7 @@ from jobscanner.filters import outside_us
     ("Winnersh, United Kingdom", True),
     ("Toronto, ON, Canada", True),
     ("Office - Israel - Petach Tikva", True),
+    ("PRC, Shanghai", True),
     ("United States; Canada", False),
     ("Remote in USA; Remote in Canada", False),
     ("Westford, Massachusetts, United States of America", False),
